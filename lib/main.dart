@@ -1,67 +1,169 @@
 import 'package:flutter/material.dart';
 
-import 'card_tile.dart';
+class CounterDisplay extends StatelessWidget {
+  const CounterDisplay({required this.count, super.key});
 
-void main() {
-  runApp(const MyApp());
-}
+  final int count;
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'DSA Demo',
-      theme: ThemeData(
-        colorScheme:
-            ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 58, 116, 183)),
-        useMaterial3: true,
+    return Text('Count: $count');
+  }
+}
+
+// Begin Shopping list
+class Product {
+  const Product({required this.name});
+
+  final String name;
+}
+
+typedef CartChangedCallback = Function(Product product, bool inCart);
+
+class ShoppingListItem extends StatelessWidget {
+  ShoppingListItem({
+    required this.product,
+    required this.inCart,
+    required this.onCartChanged,
+  }) : super(key: ObjectKey(product));
+
+  final Product product;
+  final bool inCart;
+  final CartChangedCallback onCartChanged;
+
+  Color _getColor(BuildContext context) {
+    // The theme depends on the BuildContext because different
+    // parts of the tree can have different themes.
+    // The BuildContext indicates where the build is taking
+    // place and therefore which theme to use.
+    return inCart ? Colors.black54 : Theme.of(context).primaryColor;
+  }
+
+  TextStyle? _getTextStyle(BuildContext context) {
+    if (!inCart) return null;
+
+    return const TextStyle(
+      color: Colors.black54,
+      decoration: TextDecoration.lineThrough,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      onTap: () {
+        onCartChanged(product, inCart);
+      },
+      leading: CircleAvatar(
+        backgroundColor: _getColor(context),
+        child: Text(product.name[0]),
       ),
-      home: const MyHomePage(title: 'Atlantic Technology University'),
+      title: Text(
+        product.name,
+        style: _getTextStyle(context),
+      ),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-  final String title;
+class ShoppingList extends StatefulWidget {
+  const ShoppingList({required this.products, super.key});
+
+  final List<Product> products;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<ShoppingList> createState() => _ShoppingListState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _ShoppingListState extends State<ShoppingList> {
+  final _shoppingCart = <Product>{};
+
+  void _handleCartChanged(Product product, bool inCart) {
+    setState(() {
+      // When a user changes what's in the cart, you need to change
+      // _shoppingCart inside a setState call to trigger a rebuild.
+      // The framework then calls build, below, which updates
+      // the visual appearance of the app.
+      if (!inCart) {
+        _shoppingCart.add(product);
+      } else {
+        _shoppingCart.remove(product);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-        appBar: AppBar(
-          // TRY THIS: Try changing the color here to a specific color (to
-          // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-          // change color while the other colors stay the same.
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          // Here we take the value from the MyHomePage object that was created by
-          // the App.build method, and use it to set our appbar title.
-          title: Text(widget.title),
-        ),
-        body: GridView.count(
-          crossAxisCount: 3,
-          children: <Widget>[
-            CardTile(cardTitle: "About Us"),
-            CardTile(cardTitle: "Sample CV"),
-            CardTile(cardTitle: "Career Advice"),
-            CardTile(cardTitle: "Upcoming Events"),
-            CardTile(cardTitle: "Useful Links"),
-            CardTile(cardTitle: "Courses"),
-          ],
-        ) // This trailing comma makes auto-formatting nicer for build methods.
+    return ListView(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      children: widget.products.map((product) {
+        return ShoppingListItem(
+          product: product,
+          inCart: _shoppingCart.contains(product),
+          onCartChanged: _handleCartChanged,
         );
+      }).toList(),
+    );
   }
+}
+
+// End Shopping list
+
+class CounterIncrementor extends StatelessWidget {
+  const CounterIncrementor({required this.onPressed, super.key});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      child: const Text('Increment'),
+    );
+  }
+}
+
+class Counter extends StatefulWidget {
+  const Counter({super.key});
+
+  @override
+  State<Counter> createState() => _CounterState();
+}
+
+class _CounterState extends State<Counter> {
+  int _counter = 0;
+
+  void _increment() {
+    setState(() {
+      ++_counter;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        CounterIncrementor(onPressed: _increment),
+        const SizedBox(width: 16),
+        CounterDisplay(count: _counter),
+      ],
+    );
+  }
+}
+
+void main() {
+  runApp(
+    const MaterialApp(
+      home: Scaffold(
+        body: Column(children: [
+          Counter(),
+          Spacer(),
+          ShoppingList(products: [
+            Product(name: 'Eggs'),
+          ]),
+        ]),
+      ),
+    ),
+  );
 }

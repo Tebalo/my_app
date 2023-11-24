@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class CardTile extends StatelessWidget {
   final String cardTitle;
-  CardTile({required this.cardTitle});
+  const CardTile({super.key, required this.cardTitle});
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
@@ -18,7 +18,7 @@ class CardTile extends StatelessWidget {
           decoration: const BoxDecoration(
             image: DecorationImage(
               image: AssetImage(
-                  'assets/images/about-us.webp'), // replace with your image path
+                  'assets/images/audotorium.jpg'), // replace with your image path
               fit: BoxFit.cover,
             ),
           ),
@@ -29,7 +29,8 @@ class CardTile extends StatelessWidget {
                 backgroundColor: Colors.green[500],
                 radius: 108,
                 child: const CircleAvatar(
-                  backgroundImage: AssetImage('assets/images/about-us.webp'),
+                  backgroundImage:
+                      AssetImage('assets/images/female-graduate.jpg'),
                   radius: 100,
                 ),
               ),
@@ -38,7 +39,18 @@ class CardTile extends StatelessWidget {
               ),
               Text(
                 cardTitle,
-                style: const TextStyle(
+                style: TextStyle(
+                  fontSize: 30,
+                  color: Colors.green[900],
+                  fontWeight: FontWeight.w500,
+                ), //Textstyle
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              const Text(
+                'GeeksforGeeks is a computer science portal for geeks at geeksforgeeks.org. It contains well written, well thought and well explained computer science and programming articles, quizzes, projects, interview experiences and much more!!',
+                style: TextStyle(
                   fontSize: 15,
                   color: Colors.green,
                 ),
